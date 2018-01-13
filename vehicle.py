@@ -12,17 +12,14 @@ from memory import Memory
 
 
 class Vehicle():
-    def __init__(self, mem=None):
+    def __init__(self):
 
-        if not mem:
-            mem = Memory()
-        self.mem = mem
         self.parts = []
         self.on = True
         self.threads = []
 
 
-    def add(self, part, inputs=[], outputs=[], 
+    def add(self, part, inputs=[], outputs=[],
             threaded=False, run_condition=None):
         """
         Method to add a part to the vehicle drive loop.
@@ -73,7 +70,6 @@ class Vehicle():
         """
 
         try:
-
             self.on = True
 
             for entry in self.parts:
@@ -93,30 +89,22 @@ class Vehicle():
                 for entry in self.parts:
                     #don't run if there is a run condition that is False
                     run = True
-                    if entry.get('run_condition'):
-                        run_condition = entry.get('run_condition')
-                        run = self.mem.get([run_condition])[0]
-                        #print('run_condition', entry['part'], entry.get('run_condition'), run)
-                    
+
                     if run:
                         p = entry['part']
                         #get inputs from memory
-                        inputs = self.mem.get(entry['inputs'])
-    
+
                         #run the part
                         if entry.get('thread'):
                             outputs = p.run_threaded(*inputs)
                         else:
                             outputs = p.run(*inputs)
-    
-                        #save the output to memory
-                        if outputs is not None:
-                            self.mem.put(entry['outputs'], outputs)
-    
+
+
                     #stop drive loop if loop_count exceeds max_loopcount
                     if max_loop_count and loop_count > max_loop_count:
                         self.on = False
-    
+
                     sleep_time = 1.0 / rate_hz - (time.time() - start_time)
                     if sleep_time > 0.0:
                         time.sleep(sleep_time)
